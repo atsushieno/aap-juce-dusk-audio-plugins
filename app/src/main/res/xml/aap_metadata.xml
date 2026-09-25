@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins xmlns="urn:org.androidaudioplugin.core"
+         xmlns:gui="urn://androidaudioplugin.org/extensions/gui">
+  <plugin name="4K EQ" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/4k-eq" library="libFourKEQ_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="Multi-Comp" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/multi-comp" library="libMultiComp_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="TapeMachine" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/tapemachine" library="libTapeMachine_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="Multi-Q" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/multi-q" library="libMultiQ_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="Spectrum Analyzer" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/spectrum-analyzer" library="libSpectrumAnalyzer_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="Chord Analyzer" category="Instrument" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/chord-analyzer" library="libChordAnalyzer_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+      <port direction="output" content="midi2" name="MIDI output"/>
+    </ports>
+  </plugin>
+  <plugin name="DuskVerb" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/duskverb" library="libDuskVerb_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+  <plugin name="Tape Echo" category="Effect" author="Dusk Audio"
+          developer="Dusk Audio" unique-id="juceaap:dusk-audio/tape-echo" library="libTapeEcho_Standalone.so"
+          entrypoint="GetJuceAAPFactoryStandalone" gui:ui-view-factory="org.androidaudioplugin.juce.JuceAudioPluginViewFactory">
+    <extensions bom="0.12.0" />
+    <ports>
+      <port direction="input" content="audio" name="Left In"/>
+      <port direction="input" content="audio" name="Right In"/>
+      <port direction="output" content="audio" name="Left Out"/>
+      <port direction="output" content="audio" name="Right Out"/>
+      <port direction="input" content="midi2" name="MIDI input"/>
+    </ports>
+  </plugin>
+</plugins>

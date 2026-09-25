@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- There is no app icon in dusk-audio-plugins, so we have a simple one (a sun setting at dusk). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path android:fillColor="#FF1E2235"
+      android:pathData="M24,2a22,22 0,1 1,0 44a22,22 0,1 1,0 -44z" />
+  <path android:fillColor="#FFF29B4B"
+      android:pathData="M11,30a13,13 0,0 1,26 0z" />
+  <path android:fillColor="#FFF29B4B"
+      android:pathData="M8,32h32v2h-32z" />
+  <path android:fillColor="#FFC8674A"
+      android:pathData="M13,37h22v2h-22z" />
+</vector>

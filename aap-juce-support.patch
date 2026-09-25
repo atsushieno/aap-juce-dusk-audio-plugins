@@ -1,0 +1,291 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 77e630b2..67b479c0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -59,6 +59,18 @@ if(BUILD_CLAP)
+     endif()
+ endif()
+ 
++# begin AAP specifics -->
++if(ANDROID)
++    find_package(androidaudioplugin REQUIRED CONFIG)
++    include_directories(${AAP_DIR}/include)
++    juce_add_modules(${AAP_JUCE_DIR}/aap-modules/aap_audio_processors)
++    # Oboe (in juce_audio_devices) builds with -Werror in Debug, which fails with our -Wextra -Wpedantic.
++    if(TARGET oboe)
++        target_compile_options(oboe PRIVATE -Wno-error)
++    endif()
++endif()
++# <-- end AAP specifics
++
+ # CI builds don't need to install plugins to system directories
+ option(DUSK_COPY_AFTER_BUILD "Copy plugins to system VST3/LV2 dirs after build" ON)
+ 
+@@ -136,4 +148,26 @@ endif()
+ option(BUILD_DUSKVERB_RENDER "Build DuskVerb plugin-host render tool" OFF)
+ if(BUILD_DUSKVERB_RENDER)
+     add_subdirectory(tests/duskverb_render)
+-endif()
+\ No newline at end of file
++endif()
++
++# begin AAP specifics -->
++# Every plugin is built as an AAP plugin (the Standalone format, which is a shared library on Android).
++if(ANDROID)
++    foreach(DUSK_AAP_TARGET
++            FourKEQ MultiComp TapeMachine MultiQ SpectrumAnalyzer ChordAnalyzer ChordAnalyzerMIDI
++            DuskVerb TapeEcho ConvolutionReverb DuskAmp GrooveMind)
++        if(TARGET ${DUSK_AAP_TARGET})
++            target_compile_definitions(${DUSK_AAP_TARGET} PUBLIC
++                # JUCE 8.0.11 or later has juce_audio_processors_headless (its AudioProcessor editor API).
++                AAP_JUCE_HAS_HEADLESS_PROCESSOR=1
++                JUCEAAP_HAVE_AUDIO_PLAYHEAD_NEW_POSITION_INFO=1
++                JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE=1
++            )
++            target_link_libraries(${DUSK_AAP_TARGET} PRIVATE
++                aap_audio_processors
++                androidaudioplugin::androidaudioplugin
++            )
++        endif()
++    endforeach()
++endif()
++# <-- end AAP specifics
+diff --git a/plugins/4k-eq/CMakeLists.txt b/plugins/4k-eq/CMakeLists.txt
+index 160481e7..a36033fa 100644
+--- a/plugins/4k-eq/CMakeLists.txt
++++ b/plugins/4k-eq/CMakeLists.txt
+@@ -39,6 +39,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Define our VST3 and LV2 plugin target
+ juce_add_plugin(FourKEQ
+     PLUGIN_NAME "4K EQ"
+diff --git a/plugins/DuskVerb/CMakeLists.txt b/plugins/DuskVerb/CMakeLists.txt
+index ad895de1..2cdd4482 100644
+--- a/plugins/DuskVerb/CMakeLists.txt
++++ b/plugins/DuskVerb/CMakeLists.txt
+@@ -40,6 +40,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Create plugin target
+ juce_add_plugin(DuskVerb
+     COMPANY_NAME "Dusk Audio"
+diff --git a/plugins/TapeMachine/CMakeLists.txt b/plugins/TapeMachine/CMakeLists.txt
+index 522a9234..7874b927 100644
+--- a/plugins/TapeMachine/CMakeLists.txt
++++ b/plugins/TapeMachine/CMakeLists.txt
+@@ -40,6 +40,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Define the plugin
+ juce_add_plugin(TapeMachine
+     COMPANY_NAME "Dusk Audio"
+diff --git a/plugins/chord-analyzer/CMakeLists.txt b/plugins/chord-analyzer/CMakeLists.txt
+index daced497..598637f8 100644
+--- a/plugins/chord-analyzer/CMakeLists.txt
++++ b/plugins/chord-analyzer/CMakeLists.txt
+@@ -37,6 +37,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Add the plugin - MIDI Effect
+ juce_add_plugin(ChordAnalyzer
+     COMPANY_NAME "Dusk Audio"
+diff --git a/plugins/multi-comp/CMakeLists.txt b/plugins/multi-comp/CMakeLists.txt
+index 7c0fea83..cd1e6f68 100644
+--- a/plugins/multi-comp/CMakeLists.txt
++++ b/plugins/multi-comp/CMakeLists.txt
+@@ -40,6 +40,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Create plugin target
+ juce_add_plugin(MultiComp
+     # VERSION ...                               # Set this if the plugin version is different to the project version
+@@ -127,7 +134,8 @@ endif()
+ option(ENABLE_ASAN "Enable AddressSanitizer for memory error detection" OFF)
+ 
+ # Enable AddressSanitizer in debug builds or when explicitly requested (GCC/Clang only)
+-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR ENABLE_ASAN)
++# AAP: not on Android, where the sanitizer runtimes are not linked to the plugin library (nor set up for the app).
++if((CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT ANDROID) OR ENABLE_ASAN)
+     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+         target_compile_options(MultiComp PRIVATE
+             -fsanitize=address
+diff --git a/plugins/multi-q/BandDetailPanel.cpp b/plugins/multi-q/BandDetailPanel.cpp
+index 7e5fd848..aa9e755c 100644
+--- a/plugins/multi-q/BandDetailPanel.cpp
++++ b/plugins/multi-q/BandDetailPanel.cpp
+@@ -4,7 +4,13 @@
+ #include "DuskLookAndFeel.h"   // DuskSlider — gives knobs double-click → ValueEditor
+ 
+ // Static instance of F6 knob look and feel (shared by all instances)
+-static F6KnobLookAndFeel f6KnobLookAndFeel;
++// AAP: created on first use, as a LookAndFeel must not be created before JUCE statics (e.g. Colours)
++// are initialized, which is not guaranteed at library load time.
++static F6KnobLookAndFeel& getF6KnobLookAndFeel()
++{
++    static F6KnobLookAndFeel f6KnobLookAndFeel;
++    return f6KnobLookAndFeel;
++}
+ 
+ BandDetailPanel::BandDetailPanel(MultiQ& p)
+     : processor(p)
+@@ -65,7 +71,7 @@ void BandDetailPanel::setupKnobs()
+     auto setupRotaryKnob = [this](std::unique_ptr<juce::Slider>& knob) {
+         knob = std::make_unique<DuskSlider>(juce::Slider::RotaryHorizontalVerticalDrag,
+                                              juce::Slider::NoTextBox);
+-        knob->setLookAndFeel(&f6KnobLookAndFeel);
++        knob->setLookAndFeel(&getF6KnobLookAndFeel());
+         knob->setColour(juce::Slider::rotarySliderFillColourId, getBandColor(selectedBand));
+         knob->setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(0xFF404040));
+         knob->onValueChange = [this]() { repaint(); };
+@@ -99,7 +105,7 @@ void BandDetailPanel::setupKnobs()
+     auto setupDynKnob = [this](std::unique_ptr<juce::Slider>& knob) {
+         knob = std::make_unique<DuskSlider>(juce::Slider::RotaryHorizontalVerticalDrag,
+                                              juce::Slider::NoTextBox);
+-        knob->setLookAndFeel(&f6KnobLookAndFeel);
++        knob->setLookAndFeel(&getF6KnobLookAndFeel());
+         knob->setColour(juce::Slider::rotarySliderFillColourId, juce::Colour(0xFFff8844));
+         knob->setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(0xFF404040));
+         knob->onValueChange = [this]() { repaint(); };
+@@ -172,7 +178,7 @@ void BandDetailPanel::setupKnobs()
+     // Pan knob (stereo placement of band EQ effect)
+     panKnob = std::make_unique<DuskSlider>(juce::Slider::RotaryHorizontalVerticalDrag,
+                                             juce::Slider::NoTextBox);
+-    panKnob->setLookAndFeel(&f6KnobLookAndFeel);
++    panKnob->setLookAndFeel(&getF6KnobLookAndFeel());
+     panKnob->setColour(juce::Slider::rotarySliderFillColourId, juce::Colour(0xFF66aadd));
+     panKnob->setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(0xFF404040));
+     panKnob->setTooltip("Pan band's EQ effect (L/R placement)");
+diff --git a/plugins/multi-q/CMakeLists.txt b/plugins/multi-q/CMakeLists.txt
+index 9d222a0e..195c0308 100644
+--- a/plugins/multi-q/CMakeLists.txt
++++ b/plugins/multi-q/CMakeLists.txt
+@@ -40,6 +40,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Create plugin target
+ juce_add_plugin(MultiQ
+     COMPANY_NAME "Dusk Audio"
+diff --git a/plugins/multi-q/EQGraphicDisplay.cpp b/plugins/multi-q/EQGraphicDisplay.cpp
+index e366a761..335f2d6e 100644
+--- a/plugins/multi-q/EQGraphicDisplay.cpp
++++ b/plugins/multi-q/EQGraphicDisplay.cpp
+@@ -1923,7 +1923,9 @@ void EQGraphicDisplay::showBandContextMenu(int bandIndex, juce::Point<int> scree
+     menu.addItem(6, "Undo", processor.getUndoManager().canUndo());
+     menu.addItem(7, "Redo", processor.getUndoManager().canRedo());
+ 
+-    menu.showMenuAsync(juce::PopupMenu::Options().withTargetScreenArea({screenPos.x, screenPos.y, 1, 1}),
++    // AAP: parent the menu to the editor, as the plugin UI cannot create a native popup window.
++    menu.showMenuAsync(juce::PopupMenu::Options().withParentComponent(getTopLevelComponent())
++                                                 .withTargetScreenArea({screenPos.x, screenPos.y, 1, 1}),
+         [safeThis = juce::Component::SafePointer<EQGraphicDisplay>(this), bandIndex, isEnabled](int result)
+         {
+             if (safeThis == nullptr)
+diff --git a/plugins/shared/CrashLog.h b/plugins/shared/CrashLog.h
+index 6e641230..c93bb75c 100644
+--- a/plugins/shared/CrashLog.h
++++ b/plugins/shared/CrashLog.h
+@@ -125,7 +125,8 @@
+     #include <fcntl.h>
+     #include <pthread.h>
+     #include <unistd.h>
+-    #if __has_include(<execinfo.h>)
++    // AAP: Android has <execinfo.h>, but backtrace() is available only on API level 33 or later.
++    #if __has_include(<execinfo.h>) && ! defined(__ANDROID__)
+         #define DUSK_CRASHLOG_HAS_EXECINFO 1
+         #include <execinfo.h>
+     #else
+diff --git a/plugins/spectrum-analyzer/CMakeLists.txt b/plugins/spectrum-analyzer/CMakeLists.txt
+index b9399535..9d794a0c 100644
+--- a/plugins/spectrum-analyzer/CMakeLists.txt
++++ b/plugins/spectrum-analyzer/CMakeLists.txt
+@@ -30,6 +30,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ juce_add_plugin(${PLUGIN_NAME}
+     COMPANY_NAME "${PLUGIN_MANUFACTURER}"
+     PLUGIN_MANUFACTURER_CODE ${PLUGIN_MANUFACTURER_CODE}
+@@ -117,7 +124,8 @@ target_link_libraries(${PLUGIN_NAME}
+ )
+ 
+ # Platform-specific settings
+-if(UNIX AND NOT APPLE)
++# AAP: Android has pthread in libc (there is no libpthread).
++if(UNIX AND NOT APPLE AND NOT ANDROID)
+     target_link_libraries(${PLUGIN_NAME} PRIVATE pthread)
+ endif()
+ 
+diff --git a/plugins/tape-echo/CMakeLists.txt b/plugins/tape-echo/CMakeLists.txt
+index 2419aceb..8a4d9574 100644
+--- a/plugins/tape-echo/CMakeLists.txt
++++ b/plugins/tape-echo/CMakeLists.txt
+@@ -29,6 +29,13 @@ if(BUILD_AU)
+     list(APPEND PLUGIN_FORMATS AU)
+ endif()
+ 
++# begin AAP specifics -->
++# On Android we build only the Standalone format, which is the AAP plugin shared library.
++if(ANDROID)
++    set(PLUGIN_FORMATS Standalone)
++endif()
++# <-- end AAP specifics
++
+ # Define the plugin
+ juce_add_plugin(TapeEcho
+     COMPANY_NAME "Dusk Audio"

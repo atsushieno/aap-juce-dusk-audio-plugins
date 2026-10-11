@@ -32,8 +32,6 @@ android {
                     // Build native code optimized even for the debug variant (it overrides the Debug build
                     // type that AGP passes); DSP code in Debug builds (-O0) is too slow to be usable.
                     "-DCMAKE_BUILD_TYPE=Release",
-                    "-DAAP_DIR=${System.env.AAP_DIR != null ? System.env.AAP_DIR : "$projectDir/../external/aap-core"}",
-                    "-DAAP_JUCE_DIR=${System.env.AAP_JUCE_DIR != null ? System.env.AAP_JUCE_DIR : "$projectDir/../external/aap-juce"}",
                     "-DANDROID_STL=c++_shared", "-DANDROID_CPP_FEATURES=exceptions rtti",
                     // dusk-audio-plugins specific options
                     "-DJUCE_PATH=$projectDir/../external/JUCE",
@@ -94,3 +92,5 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 }
+
+apply from: '../external/aap-juce/gradle/aap-juce.gradle'
